@@ -46,7 +46,7 @@ public struct Triple: Equatable, ExpressibleByStringLiteral, CustomStringConvert
         architecture: Architecture(rawValue: String(parts[0])) ?? .other(String(parts[0])),
         vendor: Vendor(rawValue: String(parts[1])) ?? .other(String(parts[1])),
         os: OS(rawValue: String(parts[2])) ?? .other(String(parts[2])),
-        abi: .other("none")
+        abi: .all
       )
     } else if parts.count == 1 {
       // applies for all architectures of oses

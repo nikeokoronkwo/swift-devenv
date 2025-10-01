@@ -92,20 +92,18 @@ extension Devenv {
         try FileManager.default.createDirectory(atPath: depsPath, withIntermediateDirectories: true)
       }
       // TODO: Progress bars for each dependency download
-      await withTaskGroup { group in
+      await withThrowingTaskGroup { group in
         for configDep in config.deps {
           let name = configDep.key
           let dep = configDep.value
           
           group.addTask {
-            return try? await downloadDependency(
+            print("Downloading \(name) using \(dep.sources.count)")
+            return try await downloadDependency(
               name, dep, 
               to: URL(fileURLWithPath: depsPath)
             )
           }
-        }
-        // wait for all tasks to finish
-        for await _ in group {
         }
       }
     }

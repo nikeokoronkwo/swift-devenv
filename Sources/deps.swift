@@ -1,5 +1,10 @@
 import Foundation
 import Crypto
+#if os(macOS)
+import Compression
+#else
+#warning("Compression not available outside macOS")
+#endif
 
 // TODO: Restructure this object
 public struct DependencyMap: Sendable {
@@ -17,7 +22,7 @@ func downloadDependency(
 
     // get dependency sources that match this system
     // arranged from most scoped to least scoped
-    var depSources = dep.sources.filter { source in
+    let depSources = dep.sources.filter { source in
         // if no platforms specified, include it
         guard !source.platforms.isEmpty else {
             return true
@@ -39,6 +44,8 @@ func downloadDependency(
         }
         return firstScope!.scope(systemTriple) > secondScope!.scope(systemTriple)
     }
+
+    print(depSources.count)
 
     // if no sources match, throw error
     guard !depSources.isEmpty else {
@@ -67,6 +74,7 @@ func downloadDependency(
                         name: name
                     )
                     // TODO: Support compression/decompresion
+
                     // check artifacts
                     artifactMap = try validateArtifacts(source.artifacts, base: depDestination)
                     break;
@@ -136,7 +144,7 @@ func downloadFromURL(
     }
 
     var tempUrl: URL
-    let downloadDestination = directory.appendingPathComponent(name ?? URL(string: url)!.lastPathComponent)
+    let downloadDestination = directory.appendingPathComponent(name != nil ? "\(name!)\(uri.pathExtension)" : uri.lastPathComponent)
 
     // download the file
     // TODO: In future use URLSession with delegate for progress reporting
@@ -176,8 +184,20 @@ func downloadFromURL(
         }
     }
 
+
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     try FileManager.default.moveItem(at: tempUrl, to: downloadDestination)
+
+    // if file is zip, decompress
+    guard let handle = try? FileHandle(forReadingFrom: downloadDestination) else {
+        throw DError.FileNotFound(downloadDestination.absoluteString, message: "Could not read from file")
+    }
+
+    defer { 
+        try? handle.close() 
+    }
+
+    
 
     return downloadDestination
 }
