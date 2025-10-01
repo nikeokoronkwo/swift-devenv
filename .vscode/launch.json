@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:swift-devenv}",
+            "name": "Debug devenv",
+            "program": "${workspaceFolder:swift-devenv}/.build/debug/devenv",
+            "preLaunchTask": "swift: Build Debug devenv"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:swift-devenv}",
+            "name": "Release devenv",
+            "program": "${workspaceFolder:swift-devenv}/.build/release/devenv",
+            "preLaunchTask": "swift: Build Release devenv"
+        }
+    ]
+}
